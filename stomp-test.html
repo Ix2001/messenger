@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>STOMP Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 24px; }
+    .row { margin-bottom: 12px; }
+    label { display: inline-block; width: 140px; }
+    input { width: 520px; }
+    #log { white-space: pre-wrap; border: 1px solid #ddd; padding: 12px; height: 240px; overflow: auto; }
+    button { padding: 8px 14px; }
+  </style>
+</head>
+<body>
+<h2>STOMP WebSocket Test</h2>
+
+<div class="row">
+  <label>JWT Bearer:</label>
+  <input id="token" placeholder="eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEiLCJyb2xlcyI6W3siYXV0aG9yaXR5IjoiUk9MRV9VU0VSIn1dLCJpYXQiOjE3NTU0ODQzMjksImV4cCI6MTc1NTQ4NzkyOX0.E4hgolJrDGIGtmuSYXX-7M2wYvQ9t37XdYPiXehoznQ" />
+</div>
+
+<div class="row">
+  <label>Chat ID:</label>
+  <input id="chatId" value="d375e2cb-4ad3-4e87-a1ca-7e525b62a408" />
+</div>
+
+<div class="row">
+  <button onclick="connect()">Connect</button>
+  <button onclick="disconnect()">Disconnect</button>
+</div>
+
+<div class="row">
+  <label>Message:</label>
+  <input id="text" value="hello from client" />
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<h3>Log</h3>
+<div id="log"></div>
+
+<script>
+  let stompClient = null;
+
+  function log(msg) {
+    const el = document.getElementById('log');
+    el.textContent += msg + "\n";
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function connect() {
+    const token = document.getElementById('token').value.trim();
+    if (!token) return log("❌ Вставь JWT в поле 'JWT Bearer'");
+
+    const socket = new SockJS('http://localhost:8080/ws');
+    stompClient = Stomp.over(socket);
+    stompClient.debug = null;
+
+    stompClient.connect(
+      { Authorization: 'Bearer ' + token, 'accept-version': '1.1,1.0', 'heart-beat': '10000,10000' },
+      frame => {
+        log('✅ CONNECTED ' + frame);
+
+        const chatId = document.getElementById('chatId').value.trim();
+        const destination = '/topic/chat/' + chatId;
+
+        stompClient.subscribe(destination, (msg) => {
+          log('📩 RECEIVED: ' + msg.body);
+        });
+
+        log('🔔 SUBSCRIBED to ' + destination);
+      },
+      err => {
+        log('❌ CONNECT ERROR: ' + err);
+      }
+    );
+  }
+
+  function sendMessage() {
+    if (!stompClient || !stompClient.connected) return log('❌ Not connected');
+    const chatId = document.getElementById('chatId').value.trim();
+    const payload = {
+      text: document.getElementById('text').value
+    };
+    const dest = '/app/chats/' + chatId + '/send';
+    stompClient.send(dest, {}, JSON.stringify(payload));
+    log('➡️  SENT to ' + dest + ': ' + JSON.stringify(payload));
+  }
+
+  function disconnect() {
+    if (stompClient) {
+      stompClient.disconnect(() => log('🔌 DISCONNECTED'));
+    }
+  }
+</script>
+</body>
+</html>

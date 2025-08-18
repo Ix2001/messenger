@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/chat_v2
+    username: postgres
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.web: info
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
+    org.springframework.messaging: DEBUG
+    org.springframework.web.socket: DEBUG
+    org.springframework.web.socket.sockjs: DEBUG
+
+jwt:
+  secret: "bW9ja19yYW5kb21fc3VwZXJfc2VjcmV0X2Jhc2U2NF9ieXRlcw==" # base64
+  expiration-ms: 3600000
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+app:
+  crypto:
+    # Сгенерируй:  openssl rand -base64 32
+    keyBase64: "u0l/h+fbhhCe0KAr3q2wkzuRBIRjYwmoq721+ZbTtFo="

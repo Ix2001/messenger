@@ -1,0 +1,8 @@
+MESSAGE
+destination:/topic/chats/5156ba33-b7cf-4cc7-884e-b41008193bc8
+content-type:application/json
+subscription:sub-1
+message-id:880f028f-d78b-53d5-6965-ec67745f0536-0
+content-length:228
+
+{"id":"12b387dd-236e-4170-9110-8be9efc832f3","chatId":"5156ba33-b7cf-4cc7-884e-b41008193bc8","senderId":"4c4488d5-d0d7-4713-9526-95e6420e1f3d","senderName":"admin","content":"string","createdAt":"2025-08-18T00:29:44.077628700Z"}
