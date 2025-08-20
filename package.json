@@ -1,0 +1,23 @@
+{
+  "name": "messenger-websocket-test",
+  "version": "1.0.0",
+  "description": "Тестовые скрипты для WebSocket API мессенджера",
+  "main": "test-websocket.js",
+  "scripts": {
+    "test": "node test-websocket.js",
+    "test:websocket": "node test-websocket.js"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "websocket",
+    "stomp",
+    "spring",
+    "messenger",
+    "test"
+  ],
+  "author": "Messenger Team",
+  "license": "MIT"
+}

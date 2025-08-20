@@ -14,16 +14,34 @@ import java.security.Principal;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
+@Tag(name = "WebSocket Chat", description = "WebSocket endpoints для чатов")
 public class ChatWsController {
 
     private final SimpMessagingTemplate template;
     private final MessageService messageService;
 
-    // клиент шлёт в: /app/chats/{chatId}/send
+    /**
+     * WebSocket endpoint для отправки сообщений в чат
+     * 
+     * @param chatId ID чата (UUID)
+     * @param request Данные сообщения (текст)
+     * @param principal Аутентифицированный пользователь
+     * 
+     * WebSocket URL: /app/chats/{chatId}/send
+     * Subscription Topic: /topic/chat/{chatId}
+     * 
+     * Пример использования:
+     * 1. Подключитесь к WebSocket: ws://localhost:8080/ws
+     * 2. Подпишитесь на топик: /topic/chat/{chatId}
+     * 3. Отправьте сообщение: /app/chats/{chatId}/send
+     */
     @MessageMapping("/chats/{chatId}/send")
     public void sendToChat(
             @DestinationVariable("chatId") String chatId,
