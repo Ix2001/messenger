@@ -3,6 +3,7 @@ package com.example.messenger.controller;
 import com.example.messenger.domain.Message;
 import com.example.messenger.dto.MessageDto;
 import com.example.messenger.dto.SendMessageRequest;
+import com.example.messenger.dto.SendMessageWithFilesRequest;
 import com.example.messenger.service.MessageService;
 import com.example.messenger.service.UserService;
 import com.example.messenger.util.Mapper;
@@ -29,6 +30,15 @@ public class MessageController {
     public MessageDto send(@Valid @RequestBody SendMessageRequest req, Authentication auth) {
         var me = userService.getByUsername(auth.getName());
         Message m = messageService.send(req.chatId(), me.getUsername(), req.text());
+        MessageDto dto = Mapper.toDto(m);
+        broker.convertAndSend("/topic/chats/" + dto.chatId(), dto);
+        return dto;
+    }
+
+    @PostMapping("/with-files")
+    public MessageDto sendWithFiles(@Valid @RequestBody SendMessageWithFilesRequest req, Authentication auth) {
+        var me = userService.getByUsername(auth.getName());
+        Message m = messageService.sendWithFiles(req.getChatId(), me.getUsername(), req.getText(), req.getFileIds());
         MessageDto dto = Mapper.toDto(m);
         broker.convertAndSend("/topic/chats/" + dto.chatId(), dto);
         return dto;

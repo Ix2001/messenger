@@ -2,9 +2,11 @@ package com.example.messenger.service;
 
 import com.example.messenger.domain.Chat;
 import com.example.messenger.domain.ChatMember;
+import com.example.messenger.domain.FileAttachment;
 import com.example.messenger.domain.Message;
 import com.example.messenger.domain.User;
 import com.example.messenger.repo.ChatMemberRepository;
+import com.example.messenger.repo.FileAttachmentRepository;
 import com.example.messenger.repo.MessageRepository;
 import com.example.messenger.ws.events.MessageReadEvent;
 import jakarta.transaction.Transactional;
@@ -24,6 +26,7 @@ public class MessageService {
     private final ChatService chatService;
     private final UserService userService;
     private final ChatMemberRepository chatMembers;
+    private final FileAttachmentRepository fileAttachmentRepository;
     private final ApplicationEventPublisher events;
 
     @Transactional
@@ -42,6 +45,42 @@ public class MessageService {
                 .build();
 
         return messages.save(m);
+    }
+
+    @Transactional
+    public Message sendWithFiles(UUID chatId, String senderUsername, String contentCiphertext, List<UUID> fileIds) {
+        Chat chat = chatService.get(chatId);
+        User sender = userService.getByUsername(senderUsername);
+
+        // проверяем, что юзер состоит в чате через членство
+        ChatMember membership = chatMembers.findByChatAndUser(chat, sender)
+                .orElseThrow(() -> new IllegalArgumentException("Sender is not a member of the chat"));
+
+        Message m = Message.builder()
+                .chat(chat)
+                .sender(sender)
+                .text(contentCiphertext) // здесь уже должен быть шифротекст
+                .build();
+
+        m = messages.save(m);
+
+        // Привязываем файлы к сообщению
+        if (fileIds != null && !fileIds.isEmpty()) {
+            for (UUID fileId : fileIds) {
+                FileAttachment fileAttachment = fileAttachmentRepository.findById(fileId)
+                        .orElseThrow(() -> new IllegalArgumentException("File not found: " + fileId));
+                
+                // Проверяем, что файл не привязан к другому сообщению
+                if (fileAttachment.getMessage() != null) {
+                    throw new IllegalArgumentException("File is already attached to another message: " + fileId);
+                }
+                
+                fileAttachment.setMessage(m);
+                fileAttachmentRepository.save(fileAttachment);
+            }
+        }
+
+        return m;
     }
 
 

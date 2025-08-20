@@ -9,6 +9,7 @@ import com.example.messenger.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -49,4 +50,7 @@ public class Message {
     @CreationTimestamp
     @Column
     private Instant readAt;
+
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<FileAttachment> fileAttachments;
 }
