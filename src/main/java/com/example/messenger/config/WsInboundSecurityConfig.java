@@ -1,5 +1,6 @@
 package com.example.messenger.config;
 
+import com.example.messenger.security.StompAuthChannelInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -18,7 +19,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class WsInboundSecurityConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final com.example.messenger.config.StompAuthChannelInterceptor jwt;
+    private final StompAuthChannelInterceptor jwt;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
