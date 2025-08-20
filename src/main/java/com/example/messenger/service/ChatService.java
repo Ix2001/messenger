@@ -21,20 +21,19 @@ public class ChatService {
     private final UserService userService;
 
     @Transactional
-    public Chat create(CreateChatRequest req) {
-        User creator = userService.get(req.creatorId());
+    public Chat create(CreateChatRequest req, User user) {
         Chat chat = chats.save(Chat.builder()
                 .name(req.name())
                 .groupChat(Boolean.TRUE.equals(req.groupChat()))
                 .build());
 
         // добавляем создателя
-        members.save(ChatMember.builder().chat(chat).user(creator).build());
+        members.save(ChatMember.builder().chat(chat).user(user).build());
 
         // добавляем участников
         if (req.memberIds() != null) {
             for (UUID uid : req.memberIds()) {
-                if (uid.equals(creator.getId())) continue;
+                if (uid.equals(user.getId())) continue;
                 User u = userService.get(uid);
                 members.findByChatAndUser(chat, u).orElseGet(() ->
                         members.save(ChatMember.builder().chat(chat).user(u).build()));

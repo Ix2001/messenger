@@ -31,11 +31,8 @@ public class ChatController {
             @Parameter(description = "Данные для создания чата", required = true)
             @Valid @RequestBody CreateChatRequest req, 
             Authentication auth) {
-        // creatorId должен совпадать с аутентифицированным пользователем
-        var me = userService.getByUsername(auth.getName());
-        if (!me.getId().equals(req.creatorId()))
-            throw new IllegalArgumentException("creatorId must match authenticated user");
-        Chat chat = chatService.create(req);
+        var user = userService.getByUsername(auth.getName());
+        Chat chat = chatService.create(req, user);
         List<UserDto> members = chatService.membersOf(chat).stream()
                 .map(ChatMember::getUser).map(Mapper::toDto).toList();
         return Mapper.toDto(chat, members);

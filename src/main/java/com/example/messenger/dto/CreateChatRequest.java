@@ -9,6 +9,5 @@ import java.util.UUID;
 public record CreateChatRequest(
         @NotBlank String name,
         @NotNull Boolean groupChat,
-        @NotNull UUID creatorId,
         List<UUID> memberIds
 ) {}
