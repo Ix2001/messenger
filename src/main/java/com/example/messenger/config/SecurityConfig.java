@@ -35,7 +35,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(SWAGGER_WHITELIST).permitAll()
                 .requestMatchers(H2_WHITELIST).permitAll()
-                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/register", "/api/auth/login", "/websocket**").permitAll()
                 .requestMatchers("/ws/**").permitAll() // проверка токена будет в STOMP CONNECT
                 .anyRequest().authenticated()
         );
