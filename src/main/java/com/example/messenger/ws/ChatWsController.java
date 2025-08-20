@@ -1,7 +1,9 @@
 package com.example.messenger.ws;
 
 import com.example.messenger.dto.SendMessageRequest;
+import com.example.messenger.dto.SendMessageWithFilesRequest;
 import com.example.messenger.service.MessageService;
+import com.example.messenger.util.Mapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -34,17 +36,29 @@ public class ChatWsController {
         String text = request != null ? request.text() : null;
 
         log.debug("WS SEND chatId={}, sender={}, text={}", chatId, sender, text);
-        messageService.send(UUID.fromString(chatId), sender, text);
+        var message = messageService.send(UUID.fromString(chatId), sender, text);
+        var messageDto = Mapper.toDto(message);
+        
         // публикуем всем подписчикам /topic/chat/{chatId}
-        assert text != null;
-        template.convertAndSend(
-                "/topic/chat/" + chatId,
-                Map.of(
-                        "chatId", chatId,
-                        "sender", sender,
-                        "text", text,
-                        "ts", Instant.now().toString()
-                )
-        );
+        template.convertAndSend("/topic/chat/" + chatId, messageDto);
+    }
+
+    // клиент шлёт в: /app/chats/{chatId}/send-with-files
+    @MessageMapping("/chats/{chatId}/send-with-files")
+    public void sendToChatWithFiles(
+            @DestinationVariable("chatId") String chatId,
+            @Payload SendMessageWithFilesRequest request,
+            Principal principal
+    ) {
+        String sender = principal != null ? principal.getName() : "anonymous";
+        String text = request != null ? request.getText() : null;
+        var fileIds = request != null ? request.getFileIds() : null;
+
+        log.debug("WS SEND WITH FILES chatId={}, sender={}, text={}, fileIds={}", chatId, sender, text, fileIds);
+        var message = messageService.sendWithFiles(UUID.fromString(chatId), sender, text, fileIds);
+        var messageDto = Mapper.toDto(message);
+        
+        // публикуем всем подписчикам /topic/chat/{chatId}
+        template.convertAndSend("/topic/chat/" + chatId, messageDto);
     }
 }

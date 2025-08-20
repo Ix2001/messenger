@@ -12,6 +12,10 @@ spring:
 
 server:
   port: 8080
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
 
 logging:
   level:
@@ -36,3 +40,12 @@ app:
   crypto:
     # Сгенерируй:  openssl rand -base64 32
     keyBase64: "u0l/h+fbhhCe0KAr3q2wkzuRBIRjYwmoq721+ZbTtFo="
+  
+  minio:
+    endpoint: https://s3.students.alabuga.space
+    region: ru-cod-4-2
+    access-key: bOWbfv5DHJgsq8PdzTKT
+    secret-key: O5HY8pbfdXgKTHZiW5XyfK21cGKGeYh5RPfqD3uM
+    path-style-access: true
+    bucket: alabuga-hr-chat-dev
+    max-file-size: 1073741824 # 1024 MB in bytes
