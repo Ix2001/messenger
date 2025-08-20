@@ -15,12 +15,15 @@ import java.util.Base64;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class CryptoService {
 
-    private final CryptoProperties properties;
+    private final String secretKey;
     private SecretKey key;
     private final SecureRandom random = new SecureRandom();
+
+    public CryptoService(@org.springframework.beans.factory.annotation.Value("${app.crypto.keyBase64}") String secretKey) {
+        this.secretKey = secretKey;
+    }
 
     // AES-GCM: IV 12 байт, TAG 16 байт
     public static final String TRANSFORMATION = "AES/GCM/NoPadding";
@@ -29,11 +32,10 @@ public class CryptoService {
 
     @PostConstruct
     void init() throws Exception {
-        String base64 = properties.getKeyBase64();
-        if (base64 == null || base64.isBlank()) {
+        if (secretKey == null || secretKey.isBlank()) {
             throw new IllegalStateException("APP_CRYPTO_KEY_BASE64 not set");
         }
-        byte[] raw = Base64.getDecoder().decode(base64);
+        byte[] raw = Base64.getDecoder().decode(secretKey);
         if (raw.length != 32) { // 256-bit
             throw new IllegalStateException("Crypto key must be 32 bytes (Base64 of 32)");
         }

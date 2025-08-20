@@ -51,6 +51,5 @@ public class Message {
     @Column
     private Instant readAt;
 
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<FileAttachment> fileAttachments;
+
 }

@@ -3,7 +3,7 @@ package com.example.messenger.controller;
 import com.example.messenger.domain.Message;
 import com.example.messenger.dto.MessageDto;
 import com.example.messenger.dto.SendMessageRequest;
-import com.example.messenger.dto.SendMessageWithFilesRequest;
+
 import com.example.messenger.service.MessageService;
 import com.example.messenger.service.UserService;
 import com.example.messenger.util.Mapper;
@@ -35,14 +35,7 @@ public class MessageController {
         return dto;
     }
 
-    @PostMapping("/with-files")
-    public MessageDto sendWithFiles(@Valid @RequestBody SendMessageWithFilesRequest req, Authentication auth) {
-        var me = userService.getByUsername(auth.getName());
-        Message m = messageService.sendWithFiles(req.getChatId(), me.getUsername(), req.getText(), req.getFileIds());
-        MessageDto dto = Mapper.toDto(m);
-        broker.convertAndSend("/topic/chats/" + dto.chatId(), dto);
-        return dto;
-    }
+
 
     @GetMapping("/by-chat/{chatId}")
     public List<MessageDto> last100(@PathVariable UUID chatId) {
@@ -50,14 +43,8 @@ public class MessageController {
     }
 
     @PostMapping("/set-read-message-time/{chatId}/{messageId}")
-    public void setReadTime(@Valid @PathVariable UUID chatId, @Valid @PathVariable UUID messageId, Authentication auth) {
+    public void setReadTime(@PathVariable UUID chatId, @PathVariable UUID messageId, Authentication auth) {
         var me = userService.getByUsername(auth.getName());
-
-        messageService.setReadTime(chatId, messageId, me);;
-        /*Message m = messageService.send(req.chatId(), me.getUsername(), req.text());
-        MessageDto dto = Mapper.toDto(m);
-        broker.convertAndSend("/topic/chats/" + dto.chatId(), dto);
-        return dto;*/
-
+        messageService.setReadTime(chatId, messageId, me);
     }
 }

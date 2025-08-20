@@ -5,6 +5,7 @@ import com.example.messenger.dto.RegisterRequest;
 import com.example.messenger.repo.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository users;
+
     private final PasswordEncoder encoder;
 
     @Transactional

@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,20 +19,20 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final UserService userService;
-    private final AuthenticationManager authManager;
+    private final AuthenticationProvider authProvider;
     private final CustomUserDetailsService uds;
     private final JwtService jwt;
 
     @PostMapping("/register")
-    @Operation(summary = "Login", description = "Возвращает JWT", security = {})
+    @Operation(summary = "Register", description = "Регистрация нового пользователя", security = {})
     public UserDto register(@Valid @RequestBody RegisterRequest req) {
         return Mapper.toDto(userService.register(req));
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Register", security = {})
+    @Operation(summary = "Login", description = "Вход в систему, возвращает JWT", security = {})
     public AuthResponse login(@Valid @RequestBody LoginRequest req) {
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(req.username(), req.password()));
+        authProvider.authenticate(new UsernamePasswordAuthenticationToken(req.username(), req.password()));
         var ud = uds.loadUserByUsername(req.username());
         String token = jwt.generateToken(ud);
         var u = userService.getByUsername(req.username());
