@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # PostgreSQL база данных
   postgres:
     image: postgres:15
     container_name: messenger-postgres
@@ -14,6 +15,41 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./setup-database.sql:/docker-entrypoint-initdb.d/setup-database.sql
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d chat_v2"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot приложение
+  messenger-app:
+    build: .
+    container_name: messenger-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=postgres
+      - DB_URL=jdbc:postgresql://postgres:5432/chat_v2
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=1234
+      - JWT_SECRET=1YIbsNOQdqj6bNpDPrVz7Up8vGLkEmCGQGPf0HsGG7w=
+      - JWT_EXPIRATION_MS=3600000
+      - CRYPTO_KEY_BASE64=1YIbsNOQdqj6bNpDPrVz7Up8vGLkEmCGQGPf0HsGG7w=
+      - MINIO_ENDPOINT=https://s3.students.alabuga.space
+      - MINIO_REGION=ru-cod-4-2
+      - MINIO_ACCESS_KEY=bOWbfv5DHJgsq8PdzTKT
+      - MINIO_SECRET_KEY=O5HY8pbfdXgKTHZiW5XyfK21cGKGeYh5RPfqD3uM
+      - MINIO_BUCKET=alabuga-hr-chat-dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 volumes:
   postgres_data:

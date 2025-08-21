@@ -57,18 +57,54 @@ openssl rand -base64 32
 ## Запуск приложения
 
 ### Требования
-- PostgreSQL сервер должен быть запущен
-- База данных `chat_v2` должна быть создана
+- Docker и Docker Compose (для Docker варианта)
+- Java 21 и Maven (для локального запуска)
+- PostgreSQL сервер (для локального запуска)
+
+## 🐳 Docker (рекомендуется)
+
+### Быстрый запуск
+```bash
+# Запуск всего приложения
+./docker-start.sh
+
+# Или вручную
+docker-compose up --build -d
+```
+
+### Остановка
+```bash
+# Остановка приложения
+./docker-stop.sh
+
+# Или вручную
+docker-compose down
+```
+
+### Среда разработки
+```bash
+# Запуск только инфраструктуры (PostgreSQL, pgAdmin, Redis)
+./docker-dev.sh
+
+# Затем запустите приложение локально
+mvn spring-boot:run
+```
+
+### Доступные сервисы (Docker)
+- **Приложение**: http://localhost:8080
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **PostgreSQL**: localhost:5433
+- **pgAdmin**: http://localhost:5050 (admin@messenger.com / admin123)
+- **Redis**: localhost:6379
+
+## 💻 Локальный запуск
 
 ### Настройка PostgreSQL
 
 #### Вариант 1: Docker (рекомендуется)
 ```bash
-# Запуск PostgreSQL в Docker
+# Запуск только PostgreSQL
 docker-compose up -d postgres
-
-# Проверка статуса
-docker-compose ps
 ```
 
 #### Вариант 2: Локальная установка
@@ -88,12 +124,12 @@ docker-compose ps
 ### Настройка переменных окружения
 ```bash
 # Для Docker (значения по умолчанию)
-export DB_URL=jdbc:postgresql://localhost:5432/chat_v2
+export DB_URL=jdbc:postgresql://localhost:5433/chat_v2
 export DB_USERNAME=postgres
 export DB_PASSWORD=1234
 
 # Для локальной установки (замените на ваши значения)
-# export DB_URL=jdbc:postgresql://localhost:5433/chat_v2
+# export DB_URL=jdbc:postgresql://localhost:5432/chat_v2
 # export DB_USERNAME=postgres
 # export DB_PASSWORD=your_password
 ```
